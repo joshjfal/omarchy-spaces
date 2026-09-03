@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# macOS "Spaces" style workspace switching for Hyprland / Omarchy.
+#
+# Every connected monitor flips together: space N shows workspace N+i*OFFSET on
+# the i-th monitor (i=0 = primary). Works with any number of monitors and any
+# arrangement. See space-common.sh for SPACES_PRIMARY / SPACES_OFFSET.
+#
+# Usage: space-switch <space-number>
+
+set -uo pipefail
+
+DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=space-common.sh
+source "$DIR/space-common.sh"
+
+N="${1:?usage: space-switch <space-number>}"
+space_is_valid_n "$N" || { echo "space-switch: space must be 1-$SPACES_OFFSET" >&2; exit 1; }
+
+SPACE_MONITORS=()
+space_load_monitors || { echo "space-switch: no monitors reported by hyprctl" >&2; exit 1; }
+
+focus() { hyprctl dispatch "hl.dsp.focus($1)" >/dev/null 2>&1; }
+pin()   { hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"$1\", monitor = \"$2\" })" >/dev/null 2>&1; }
+
+if (( ${#SPACE_MONITORS[@]} == 1 )); then
+  focus "{ workspace = \"$N\" }"
+  exit 0
+fi
+
+# Park each workspace on its monitor first, so focusing it can't drag focus
+# across screens.
+for i in "${!SPACE_MONITORS[@]}"; do
+  pin "$(space_workspace_for "$N" "$i")" "${SPACE_MONITORS[$i]}"
+done
+
+# Focus in reverse order so focus finally lands on the primary monitor.
+for (( i = ${#SPACE_MONITORS[@]} - 1; i >= 0; i-- )); do
+  focus "{ monitor = \"${SPACE_MONITORS[$i]}\" }"
+  focus "{ workspace = \"$(space_workspace_for "$N" "$i")\" }"
+done
+
+# Refresh the overlay's screenshot of this space. space-snapshot settles, then
+# only captures if space N is still on screen, so rapid flipping is safe.
+if [[ -x "$DIR/space-snapshot" ]]; then
+  "$DIR/space-snapshot" "$N" >/dev/null 2>&1 &
+  disown 2>/dev/null || true
+fi

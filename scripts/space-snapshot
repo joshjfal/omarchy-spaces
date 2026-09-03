@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Write a screenshot thumbnail of every monitor for "space" N, but ONLY while
+# space N is genuinely what is on screen. Each file is named with a key
+# describing the apps on that workspace at capture time
+# (space-<N>-<monitor>--<apps>.png); the overlay recomputes the key and shows
+# the screenshot only when it still matches, so a stale or wrong-space capture
+# is never displayed - it falls back to the schematic window layout instead.
+#
+# Usage: space-snapshot <space-number>
+
+set -uo pipefail
+
+command -v grim >/dev/null 2>&1 || exit 0
+
+DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=space-common.sh
+source "$DIR/space-common.sh"
+
+N="${1:?usage: space-snapshot <space-number>}"
+space_is_valid_n "$N" || exit 0
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/joshj-spaces"
+mkdir -p "$cache_dir" || exit 0
+
+scale="${SPACES_SNAPSHOT_SCALE:-0.2}"
+
+SPACE_MONITORS=()
+space_load_monitors || exit 0
+
+# Let the compositor settle, then bail unless space N is still on screen. When
+# you flip through spaces quickly every earlier snapshot job lands here and
+# quietly exits, so only the space you actually stopped on is captured.
+sleep "${SPACES_SNAPSHOT_DELAY:-0.35}"
+[[ "$(space_current)" == "$N" ]] || exit 0
+
+for i in "${!SPACE_MONITORS[@]}"; do
+  # Re-check between monitors - a multi-monitor grab takes a moment.
+  [[ "$(space_current)" == "$N" ]] || exit 0
+
+  name="${SPACE_MONITORS[$i]}"
+  san="$(space_sanitize "$name")"
+  ws="$(space_workspace_for "$N" "$i")"
+  key="$(space_apps_key "$ws")"
+
+  # Empty workspace: no screenshot, and clear any old ones.
+  if [[ -z "$key" ]]; then
+    rm -f "$cache_dir/space-${N}-${san}--"*.png 2>/dev/null || true
+    continue
+  fi
+
+  tmp="$cache_dir/.space-${N}-${san}.png.tmp"
+  if grim -s "$scale" -o "$name" "$tmp" 2>/dev/null; then
+    mv -f "$tmp" "$cache_dir/space-${N}-${san}--${key}.png"
+    # Drop stale variants for this space + monitor.
+    find "$cache_dir" -maxdepth 1 -name "space-${N}-${san}--*.png" \
+      ! -name "space-${N}-${san}--${key}.png" -delete 2>/dev/null || true
+  else
+    rm -f "$tmp" 2>/dev/null || true
+  fi
+done
+
+# Forget thumbnails not refreshed in a week.
+find "$cache_dir" -maxdepth 1 -name 'space-*.png' -mtime +7 -delete 2>/dev/null || true

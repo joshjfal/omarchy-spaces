@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Move the active window to "space" N, keeping it on the monitor it is already
+# on, then flip every monitor to that space.
+#
+# Usage: space-move <space-number>
+
+set -uo pipefail
+
+DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=space-common.sh
+source "$DIR/space-common.sh"
+
+N="${1:?usage: space-move <space-number>}"
+space_is_valid_n "$N" || { echo "space-move: space must be 1-$SPACES_OFFSET" >&2; exit 1; }
+
+SPACE_MONITORS=()
+space_load_monitors || { echo "space-move: no monitors reported by hyprctl" >&2; exit 1; }
+
+# Which monitor is the active window on?
+win_mon_id="$(hyprctl activewindow -j | jq -r '.monitor // empty')"
+target="$N"
+if [[ -n "$win_mon_id" ]]; then
+  win_mon_name="$(hyprctl monitors -j | jq -r --argjson m "$win_mon_id" '.[] | select(.id == $m) | .name')"
+  if idx="$(space_monitor_index "$win_mon_name")"; then
+    target="$(space_workspace_for "$N" "$idx")"
+  fi
+fi
+
+hyprctl dispatch "hl.dsp.window.move({ workspace = \"$target\", follow = false })" >/dev/null 2>&1
+exec "$DIR/space-switch" "$N"

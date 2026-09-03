@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "joshj.spaces",
+  "name": "Spaces",
+  "version": "0.1.0",
+  "author": "Josh J.",
+  "homepage": "https://joshj.co.uk",
+  "license": "MIT",
+  "description": "macOS-style Spaces for Hyprland: every monitor switches workspace together, with any monitor count or layout. SUPER+CTRL+arrows step through spaces; SUPER+CTRL+DOWN opens a graphical overlay with a verified screenshot of every space, the apps running there, and type-to-filter by app name; SUPER+1-0 switch, SUPER+SHIFT+1-0 move a window.",
+  "kinds": ["overlay"],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "SpacesOverlay.qml"
+  }
+}

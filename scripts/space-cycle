@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Step every monitor to the next / previous "space" (see space-switch).
+# Walks spaces 1..SPACES_COUNT in order, wrapping around.
+#
+# Usage: space-cycle next|prev
+
+set -uo pipefail
+
+dir="${1:-next}"
+
+DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=space-common.sh
+source "$DIR/space-common.sh"
+
+SPACE_MONITORS=()
+space_load_monitors || { echo "space-cycle: no monitors reported by hyprctl" >&2; exit 1; }
+
+count="$SPACES_COUNT"   # already sanitized and clamped to OFFSET in space-common.sh
+
+cur="$(space_current)"
+(( cur < 1 || cur > count )) && cur=1
+
+case "$dir" in
+  prev|-1) next=$(( (cur - 2 + count) % count + 1 )) ;;
+  *)       next=$(( cur % count + 1 )) ;;
+esac
+
+exec "$DIR/space-switch" "$next"
