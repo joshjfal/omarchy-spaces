@@ -399,7 +399,10 @@ Item {
     root.selectedIndex = root.indexOfSpace(root.currentSpaceNumber())
     root.opened = true
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
-    // Pick up a thumbnail that may have just been written by space-switch.
+    // Re-read thumbnails: one now for files that appeared since the panes were
+    // built, then a couple more in case space-switch is still writing one.
+    // retainWhileLoading keeps this from flickering.
+    root.snapRevision++
     snapReloadTimer.ticks = 0
     snapReloadTimer.restart()
   }
@@ -425,11 +428,11 @@ Item {
   Timer {
     id: snapReloadTimer
     property int ticks: 0
-    interval: 450
+    interval: 600
     repeat: true
     onTriggered: {
       root.snapRevision++
-      if (++ticks >= 4) { stop(); ticks = 0 }
+      if (++ticks >= 2) { stop(); ticks = 0 }
     }
   }
 
@@ -670,20 +673,15 @@ Item {
                       readonly property string shotKey: root.appsKeyForWs(pane.modelData.wsId)
                       readonly property string shotBase: mon
                         ? root.snapshotUrl(card.n, mon.name, pane.shotKey) : ""
+                      // The "#rev" fragment is dropped for the file lookup but
+                      // makes each value a distinct URL, so bumping snapRevision
+                      // re-reads the same file from disk without blanking the
+                      // image first (which is what caused the open() flicker).
+                      readonly property string shotUrl:
+                        pane.shotBase === "" ? "" : (pane.shotBase + "#" + root.snapRevision)
 
                       width: Math.max(Style.space(38), Math.round(root.previewHeight * aspect))
                       height: root.previewHeight
-
-                      function reloadShot() {
-                        shot.source = ""
-                        if (pane.shotBase) shot.source = pane.shotBase
-                      }
-                      onShotBaseChanged: pane.reloadShot()
-                      Component.onCompleted: pane.reloadShot()
-                      Connections {
-                        target: root
-                        function onSnapRevisionChanged() { pane.reloadShot() }
-                      }
 
                       Rectangle {
                         id: frame
@@ -694,11 +692,11 @@ Item {
                         border.width: 1
                         border.color: root.fg(0.18)
 
-                        // schematic window layout until a screenshot exists
+                        // schematic window layout until a valid screenshot exists
                         Item {
                           anchors.fill: parent
                           anchors.margins: 2
-                          visible: shot.status !== Image.Ready
+                          visible: !shot.hasShot
 
                           Repeater {
                             model: pane.winList
@@ -737,7 +735,7 @@ Item {
 
                         Text {
                           anchors.centerIn: parent
-                          visible: shot.status !== Image.Ready && pane.winList.length === 0
+                          visible: !shot.hasShot && pane.winList.length === 0
                           text: "empty"
                           color: root.fg(0.4)
                           font.family: Style.font.menuFamily
@@ -749,10 +747,21 @@ Item {
                           anchors.fill: parent
                           anchors.margins: 1
                           fillMode: Image.PreserveAspectCrop
-                          cache: false
                           asynchronous: true
                           smooth: true
-                          visible: status === Image.Ready
+                          // Keep painting the current frame while a new source
+                          // loads - no blank gap on reload.
+                          retainWhileLoading: true
+                          source: pane.shotUrl
+                          // Sticky: true once a screenshot has loaded, cleared
+                          // only on a real failure or an empty source. Stops the
+                          // schematic fallback flashing during reloads.
+                          property bool hasShot: false
+                          visible: hasShot
+                          onStatusChanged: {
+                            if (status === Image.Ready) hasShot = true
+                            else if (status === Image.Error || status === Image.Null) hasShot = false
+                          }
                         }
                       }
                     }
