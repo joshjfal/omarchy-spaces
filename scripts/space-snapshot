@@ -33,6 +33,11 @@ space_load_monitors || exit 0
 sleep "${SPACES_SNAPSHOT_DELAY:-0.35}"
 [[ "$(space_current)" == "$N" ]] || exit 0
 
+# Never capture while the overlay is on screen - it is a layer-shell surface
+# and would end up baked into the thumbnail. The overlay touches this file
+# while it is open.
+[[ -e "$cache_dir/.overlay-open" ]] && exit 0
+
 for i in "${!SPACE_MONITORS[@]}"; do
   # Re-check between monitors - a multi-monitor grab takes a moment.
   [[ "$(space_current)" == "$N" ]] || exit 0

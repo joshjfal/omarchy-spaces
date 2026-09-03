@@ -9,7 +9,6 @@
 --   SUPER + SHIFT + 1..0  move the active window to space 1..10
 --   SUPER + CTRL + LEFT / RIGHT   previous / next space
 --   SUPER + CTRL + DOWN           open the graphical Spaces overlay
---   SUPER + TAB / SHIFT + TAB     next / previous space (alias)
 
 local home = os.getenv("HOME")
 local scripts = home .. "/.config/omarchy/plugins/joshj.spaces/scripts"
@@ -36,9 +35,3 @@ hl.unbind("SUPER + CTRL + DOWN")
 o.bind("SUPER + CTRL + LEFT", "Previous space", space_cycle .. " prev")
 o.bind("SUPER + CTRL + RIGHT", "Next space", space_cycle .. " next")
 o.bind("SUPER + CTRL + DOWN", "Show spaces overlay", "omarchy-shell shell toggle joshj.spaces")
-
--- SUPER+TAB / SHIFT+TAB as an alias for next / previous space.
-hl.unbind("SUPER + TAB")
-hl.unbind("SUPER + SHIFT + TAB")
-o.bind("SUPER + TAB", "Next space", space_cycle .. " next")
-o.bind("SUPER + SHIFT + TAB", "Previous space", space_cycle .. " prev")

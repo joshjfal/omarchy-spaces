@@ -7,7 +7,7 @@ Hyprland gives each monitor its own independent workspaces. This plugin makes
 workspace `N + i×OFFSET` on the *i*-th monitor (primary is `i = 0`), and
 switching a space flips all screens at once.
 
-It adapts to whatever displays you have — one monitor, two, three, portrait,
+It adapts to whatever displays you have - one monitor, two, three, portrait,
 mixed resolutions, any arrangement. The primary monitor is auto-detected (the
 largest one) or set with `SPACES_PRIMARY`; the rest are ordered by physical
 position.
@@ -15,7 +15,7 @@ position.
 `SUPER + CTRL + DOWN` opens a graphical overlay showing every space with a
 screenshot of each monitor (laid out in the same left-to-right order as your
 real displays), the apps running there, and a keybind bar. Start typing to
-filter spaces by app name — `chr` highlights the space with Chromium — then
+filter spaces by app name - `chr` highlights the space with Chromium - then
 press Enter to switch.
 
 ![The Spaces overlay](screenshots/overlay.png)
@@ -26,26 +26,24 @@ press Enter to switch.
 |------|--------|
 | `SUPER + CTRL + LEFT` / `RIGHT` | Previous / next space |
 | `SUPER + CTRL + DOWN` | Open/close the Spaces overlay |
-| `SUPER + 1`…`0` | Switch every monitor to space 1–10 |
-| `SUPER + SHIFT + 1`…`0` | Move the active window to space 1–10 |
-| `SUPER + TAB` / `SUPER + SHIFT + TAB` | Next / previous space (alias) |
+| `SUPER + 1`...`0` | Switch every monitor to space 1-10 |
+| `SUPER + SHIFT + 1`...`0` | Move the active window to space 1-10 |
 
 `SUPER + arrow` stays window focus; `SUPER + CTRL + arrow` is the matching
 "space" version. In the overlay: **arrows / Tab** move the selection, **Enter**
-switches, **1–0** jump directly, **type** to filter by app name (Backspace
+switches, **1-0** jump directly, **type** to filter by app name (Backspace
 edits, Enter accepts), **Esc** clears the filter then closes, a click outside
 closes.
 
-The plugin rebinds, replacing these Omarchy defaults: `SUPER + 1`…`0` and
-`SUPER + SHIFT + 1`…`0` (per-monitor workspaces), `SUPER + TAB` /
-`SUPER + SHIFT + TAB`, and `SUPER + CTRL + LEFT` / `RIGHT` (move grouped window
-focus — `SUPER + ALT + arrow` still manages window groups). `SUPER + DOWN` is
-left alone.
+The plugin rebinds `SUPER + 1`...`0` and `SUPER + SHIFT + 1`...`0` (Omarchy's
+per-monitor workspace switch/move) and `SUPER + CTRL + LEFT` / `RIGHT` (Omarchy's
+"move grouped window focus" - `SUPER + ALT + arrow` still manages window
+groups). Nothing else Omarchy binds is touched.
 
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/OWNER/omarchy-spaces.git --enable
+omarchy plugin add https://github.com/joshj91/omarchy-spaces.git --enable
 ~/.config/omarchy/plugins/joshj.spaces/install.sh
 ```
 
@@ -71,7 +69,7 @@ Both are optional. Set them with `hl.env(...)` in `~/.config/hypr/bindings.lua`
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
-| `SPACES_PRIMARY` | largest monitor | Name of the monitor that holds workspaces `1‑OFFSET` (`hyprctl monitors`). |
+| `SPACES_PRIMARY` | largest monitor | Name of the monitor that holds workspaces `1-OFFSET` (`hyprctl monitors`). |
 | `SPACES_OFFSET` | `10` | Per-monitor workspace-id offset. Monitor *i* uses `N + i×OFFSET`. |
 | `SPACES_COUNT` | `5` | How many spaces prev/next steps through and the overlay always shows. |
 | `SPACES_SNAPSHOT_SCALE` | `0.2` | Thumbnail scale for overlay screenshots. |
@@ -81,8 +79,8 @@ Both are optional. Set them with `hl.env(...)` in `~/.config/hypr/bindings.lua`
 hl.env("SPACES_PRIMARY", "DP-1")
 ```
 
-With `OFFSET = 10`: a two-monitor setup uses workspaces 1‑10 and 11‑20, a
-three-monitor setup adds 21‑30, and so on. On a single monitor the plugin
+With `OFFSET = 10`: a two-monitor setup uses workspaces 1-10 and 11-20, a
+three-monitor setup adds 21-30, and so on. On a single monitor the plugin
 degrades to plain workspace switching.
 
 ## How it works
@@ -99,19 +97,19 @@ degrades to plain workspace switching.
   order, wrapping.
 - `scripts/space-snapshot <N>` writes a downscaled `grim` thumbnail of each
   monitor to `~/.cache/joshj-spaces/space-<N>-<monitor>--<apps>.png`, but only
-  after checking space *N* is still what's on screen — so flipping through
-  spaces quickly captures just the one you land on, never the ones you pass.
-  `space-switch` runs it after every switch and the overlay runs it for the
-  current space on open. Thumbnails older than a week are pruned.
+  after checking space *N* is still what's on screen and the overlay isn't -
+  so flipping through spaces quickly captures just the one you land on, and the
+  overlay is never baked into a thumbnail. `space-switch` runs it after every
+  switch. Thumbnails older than a week are pruned.
 - `SpacesOverlay.qml` shows a thumbnail only when the `<apps>` in its filename
-  still match the apps currently on that workspace. Otherwise — a space you
-  haven't visited, or whose windows changed since — the pane shows a schematic
+  still match the apps currently on that workspace. Otherwise - a space you
+  haven't visited, or whose windows changed since - the pane shows a schematic
   layout of the actual windows (or "empty"), never a guessed screenshot.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
 
 ---
 
-By Josh J. — [joshj.co.uk](https://joshj.co.uk)
+By Josh J. - [joshj.co.uk](https://joshj.co.uk)

@@ -1,4 +1,4 @@
-// Spaces — a macOS-style "all spaces" overlay for Hyprland / Omarchy.
+// Spaces - a macOS-style "all spaces" overlay for Hyprland / Omarchy.
 //
 // A "space" N is workspace N + i*OFFSET on the i-th monitor (primary = i 0);
 // every monitor flips together. This overlay shows spaces 1..SPACES_COUNT
@@ -382,12 +382,15 @@ Item {
     root.switchTo(root.spaces[root.selectedIndex].n)
   }
 
-  function refreshCurrentSnapshot() {
-    Quickshell.execDetached([root.scriptPath("space-snapshot"), String(root.currentSpaceNumber())])
-    // space-snapshot settles then grabs; reload a few times to catch the write.
-    snapReloadTimer.ticks = 0
-    snapReloadTimer.restart()
+  // Snapshots are taken only by space-switch (settled desktop, no overlay). The
+  // overlay just marks itself on screen so a switch made while it is open does
+  // not bake it into a thumbnail.
+  function markOnScreen(on) {
+    Quickshell.execDetached(on
+      ? ["sh", "-c", "mkdir -p " + root.cacheDir + " && touch " + root.cacheDir + "/.overlay-open"]
+      : ["rm", "-f", root.cacheDir + "/.overlay-open"])
   }
+  onOpenedChanged: root.markOnScreen(root.opened)
 
   // ----------------------------------------------------- shell entry points
   function open(payloadJson) {
@@ -396,7 +399,9 @@ Item {
     root.selectedIndex = root.indexOfSpace(root.currentSpaceNumber())
     root.opened = true
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
-    root.refreshCurrentSnapshot()
+    // Pick up a thumbnail that may have just been written by space-switch.
+    snapReloadTimer.ticks = 0
+    snapReloadTimer.restart()
   }
 
   function close() {
@@ -414,6 +419,7 @@ Item {
   Component.onCompleted: {
     root.rebuild()
     root.snapRevision = 1
+    root.markOnScreen(false)   // clear a stale flag from a crashed session
   }
 
   Timer {
@@ -442,7 +448,7 @@ Item {
     var base = [
       { k: "↑ ↓ ← →", l: "Navigate" },
       { k: "⏎", l: "Switch" },
-      { k: "1 – 0", l: "Jump" },
+      { k: "1 - 0", l: "Jump" },
       { k: "type", l: "Filter by app" },
       { k: "esc", l: root.filter.length > 0 ? "Clear filter" : "Close" }
     ]
