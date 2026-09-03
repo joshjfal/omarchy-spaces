@@ -66,9 +66,10 @@ if grep -qF "$begin_marker" "$bindings_file"; then
   printf 'Spaces bindings already present in %s.\n' "$bindings_file"
 else
   printf 'This adds Spaces bindings to %s (a timestamped backup is kept):\n' "$bindings_file"
-  printf '  SUPER+1-0 / SHIFT+1-0, SUPER+CTRL+LEFT / RIGHT / DOWN\n'
-  printf 'They replace the matching Omarchy defaults (SUPER+1-0 workspaces and\n'
-  printf 'SUPER+CTRL+LEFT/RIGHT grouped-window focus).\n'
+  printf '  SUPER+1-0 / SHIFT+1-0  -> switch / move-window to a space (all monitors)\n'
+  printf '  SUPER+CTRL+LEFT/RIGHT  -> previous / next space\n'
+  printf '  SUPER+CTRL+DOWN        -> the Spaces overlay\n'
+  printf 'SUPER+CTRL+LEFT/RIGHT replaces Omarchy'\''s grouped-window focus binding.\n'
   confirm "Install the Spaces bindings?" || fail "cancelled"
 
   backup="${bindings_file}.bak.$(date +%s)"

@@ -33,10 +33,11 @@ switches, **1-0** jump directly, **type** to filter by app name (Backspace
 edits, Enter accepts), **Esc** clears the filter then closes, a click outside
 closes.
 
-The plugin rebinds `SUPER + 1`...`0` and `SUPER + SHIFT + 1`...`0` (Omarchy's
-per-monitor workspace switch/move) and `SUPER + CTRL + LEFT` / `RIGHT` (Omarchy's
-"move grouped window focus" - `SUPER + ALT + arrow` still manages window
-groups). Nothing else Omarchy binds is touched.
+`SUPER + 1`...`0` and `SUPER + SHIFT + 1`...`0` do what they always did - jump to
+/ send a window to a numbered workspace - they just move every monitor together
+now. The only binding actually repurposed is `SUPER + CTRL + LEFT` / `RIGHT`,
+which Omarchy uses for "move grouped window focus" (`SUPER + ALT + arrow` still
+manages window groups).
 
 ## Install
 
