@@ -26,11 +26,9 @@ press Enter to switch.
 |------|--------|
 | `SUPER + CTRL + LEFT` / `RIGHT` | Previous / next space |
 | `SUPER + CTRL + DOWN` | Open/close the Spaces overlay |
-| `SUPER + 1`...`0` | Switch every monitor to space 1-10 |
-| `SUPER + SHIFT + 1`...`0` | Move the active window to space 1-10 |
 
 `SUPER + arrow` stays window focus; `SUPER + CTRL + arrow` is the matching
-"space" version. In the overlay: **arrows / Tab** move the selection, **Enter**
+"space". In the overlay: **arrows / Tab** move the selection, **Enter**
 switches, **1-0** jump directly, **type** to filter by app name (Backspace
 edits, Enter accepts), **Esc** clears the filter then closes, a click outside
 closes.
@@ -105,10 +103,6 @@ degrades to plain workspace switching.
   still match the apps currently on that workspace. Otherwise - a space you
   haven't visited, or whose windows changed since - the pane shows a schematic
   layout of the actual windows (or "empty"), never a guessed screenshot.
-
-## License
-
-MIT - see [LICENSE](LICENSE).
 
 ---
 
