@@ -48,7 +48,7 @@ manages window groups).
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/joshj91/omarchy-spaces.git --enable
+omarchy plugin add https://github.com/joshjfal/omarchy-spaces.git --enable
 ~/.config/omarchy/plugins/joshj.spaces/install.sh
 ```
 
