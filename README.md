@@ -20,6 +20,12 @@ press Enter to switch.
 
 ![The Spaces overlay](screenshots/overlay.png)
 
+> [!NOTE]
+> Tested on Omarchy 4.0 (Hyprland 0.56.2, Quickshell 0.3.0) with two monitors -
+> one 3440x1440 landscape and one 2560x1440 portrait. The single-monitor and
+> three-plus-monitor paths are written to generalise but haven't been run on
+> that hardware yet - reports welcome.
+
 ## Bindings
 
 | Keys | Action |
@@ -107,4 +113,5 @@ degrades to plain workspace switching.
 
 ---
 
-By Josh J. - [joshj.co.uk](https://joshj.co.uk)
+By Josh J. - [joshj.co.uk](https://joshj.co.uk). MIT licensed. Vibe-coded with
+[Claude Code](https://claude.com/claude-code).
